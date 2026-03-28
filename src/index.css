@@ -1,0 +1,11 @@
+/* reset */
+body, html, #root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100dvh;
+  background-color: #0C0A09;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
