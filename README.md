@@ -1,16 +1,36 @@
-# React + Vite
+# Botero Museum App - Experiencia ante la Obra
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Sobre el Proyecto
+Una aplicación **"Museum Companion"** de nueva generación diseñada específicamente para el **Museo Botero** en Bogotá. El enfoque rompe con la audioguía tradicional, buscando sumergir al visitante en el universo del Maestro Fernando Botero a través de tecnología inmersiva, inteligencia artificial y una interfaz con estética editorial de lujo.
 
-Currently, two official plugins are available:
+## Objetivo
+Elevar la experiencia de visita física, convirtiendo el smartphone en una lente que permite un diálogo activo entre el espectador, la obra y el contexto histórico, eliminando las barreras de información técnica y priorizando la conexión emocional con el arte.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Principios de Diseño
+El trabajo se ha basado en tres pilares fundamentales:
+*   **Estética Botereana (Volumen y Forma):** Una interfaz que respira. Se utiliza tipografía con carácter (*Playfair Display*) y espacios generosos que emulan la monumentalidad y sensualidad de las obras del Maestro.
+*   **Museum-UX (Uso en sala):** Diseño optimizado para el uso con una sola mano, con controles accesibles, alto contraste para entornos de luz controlada y navegación fluida tipo "sheet" (deslizable).
+*   **Offline First:** Implementación de *Graceful Degradation*. La app detecta la falta de señal (común en edificios históricos) y adapta su interfaz para mostrar guías curadas locales en lugar de romper la experiencia.
 
-## React Compiler
+## Funcionalidades Implementadas
+*   **Escáner AR Progresivo:** Sistema de reconocimiento visual que proyecta capas de información (*hotspots*) directamente sobre la obra física, permitiendo "tocar" el conocimiento.
+*   **OmniBar de Búsqueda Dual:** Permite encontrar cualquier obra mediante su identificador numérico físico o mediante búsqueda por voz procesada con IA.
+*   **Explorador Bento-Grid:** Una cuadrícula asimétrica y moderna para la colección, con filtros inteligentes por técnica (Pintura, Escultura, Dibujo) y tratamiento visual diferenciado según el soporte (bronce vs óleo).
+*   **Gestión Editorial de Colección:** Sistema de favoritos y creación de listas de visita personalizadas.
+*   **Asistente IA de Diálogo:** Interacción mediante lenguaje natural para preguntar curiosidades sobre la obra, con respuestas generadas dinámicamente o pre-curadas según el estado de conexión.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Estatus del Proyecto
+- [x] **Arquitectura y Navegación:** Sistema central de pantallas y transiciones fluidas.
+- [x] **Diseño Visual:** Implementación completa del sistema de diseño *Museum-Premium*.
+- [x] **Ficha de Obra:** Layout editorial con metadatos bento y reproductor de audio inmersivo.
+- [x] **Motor de Búsqueda:** Funcionalidad de Numpad y Voice Trigger operativa.
+- [x] **Realidad Aumentada:** Interfaz de escaneo con pines de cristal y tarjetas informativas AR.
+- [x] **Lógica de Colección:** Filtros dinámicos por disciplina y sistema de guardado persistente.
+- [x] **Modo Offline:** Detección de red y fallback a guías curadas locales con interfaz adaptativa.
+- [x] **Identidad de Marca:** Integración del rojo institucional (`T.brandPrimary`) y visuales premium (Mona Lisa Hero).
 
-## Expanding the ESLint configuration
+---
+*Este proyecto es un tributo tecnológico al legado de Fernando Botero, diseñado para conectar a las nuevas generaciones con la monumentalidad de su arte.* 🎨🇨🇴
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+**Desarrollado por:** ivanse22  
+**Estatus:** Versión 1.2 - Experiencia ante la Obra Refinada.
