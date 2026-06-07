@@ -3133,7 +3133,9 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
       // No auto-advance, waits for user to click "Activar cámara"
     } else if (phase === "calibration") {
       setIsSimulatingCamera(true);
-      t = setTimeout(() => setPhase("active"), 3500); // 3.5s of scanning
+      t = setTimeout(() => setPhase("calibration_success"), 2500); // 2.5s of scanning
+    } else if (phase === "calibration_success") {
+      t = setTimeout(() => setPhase("active"), 1500); // 1.5s of success state
     } else if (phase === "active") {
       t = setInterval(() => {
         setDistance(d => {
@@ -3216,7 +3218,9 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
       {phase === "confirmation" && (
         <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }} className="fade-up">
           <div style={{ backgroundColor:T.bgCardRaised, border:`1px solid ${T.borderMedium}`, borderRadius:24, padding:32, width:"100%", maxWidth:340, textAlign:"center", boxShadow:"0 20px 40px rgba(0,0,0,0.6)" }}>
-            <h2 style={{ fontFamily:T.fontDisplay, fontSize:26, color:T.textPrimary, marginBottom:8, lineHeight:1.1 }}>Ruta hacia {targetObra.titulo}</h2>
+            <h2 style={{ fontFamily:T.fontDisplay, fontSize:26, color:T.textPrimary, marginBottom:8, lineHeight:1.1 }}>
+              Ruta hacia <br/><span style={{ fontStyle:"italic" }}>{targetObra.titulo}</span>
+            </h2>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginBottom:32, opacity:0.8 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={T.textSecondary} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
               <p style={{ fontFamily:T.fontUI, fontSize:14, color:T.textSecondary, margin:0 }}>{targetObra.sala} · Piso {targetObra.piso} · ~2 min</p>
@@ -3256,6 +3260,23 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
            <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, textAlign:"center", maxWidth:260, lineHeight:1.5 }}>Mueve el teléfono lentamente apuntando hacia el suelo.</p>
            <div style={{ position:"absolute", bottom:40, display:"flex", gap:16 }}>
              <button onClick={onClose} className="btn-tap" style={{ backgroundColor:"rgba(12,10,9,0.7)", backdropFilter:"blur(12px)", border:`1px solid ${T.borderMedium}`, color:"white", padding:"14px 28px", borderRadius:T.rFull, fontFamily:T.fontUI, fontSize:14, fontWeight:500 }}>Cancelar</button>
+           </div>
+        </div>
+      )}
+
+      {/* Screen 4.5: Calibración Exitosa */}
+      {phase === "calibration_success" && (
+        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", zIndex:20 }} className="fade-up">
+           <div style={{ width:120, height:120, borderRadius:"50%", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:40 }}>
+             <div style={{ position:"absolute", inset:0, backgroundColor:"#27AE60", borderRadius:"50%", animation:"ping 1.5s cubic-bezier(0, 0, 0.2, 1) once", opacity:0.3 }} />
+             <div style={{ width:80, height:80, backgroundColor:"#27AE60", borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", boxShadow:`0 0 30px rgba(39,174,96,0.5)` }}>
+               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+               </svg>
+             </div>
+           </div>
+           <div style={{ backgroundColor:"rgba(12,10,9,0.8)", backdropFilter:"blur(12px)", padding:"14px 28px", borderRadius:T.rFull, border:`1px solid rgba(39,174,96,0.5)` }}>
+             <p style={{ fontFamily:T.fontUI, fontSize:15, color:"white", margin:0, fontWeight:500, letterSpacing:"0.02em" }}>Ubicación detectada</p>
            </div>
         </div>
       )}
@@ -3310,7 +3331,7 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
       {phase === "arrival" && (
         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", zIndex:20, pointerEvents:"none" }} className="fade-up">
           <div style={{ backgroundColor:"rgba(255,255,255,0.95)", color:"#0C0A09", padding:"16px 32px", borderRadius:T.rFull, fontWeight:700, fontFamily:T.fontUI, fontSize:18, boxShadow:"0 16px 40px rgba(0,0,0,0.6)", letterSpacing:"0.02em", animation:"pulse 1.5s infinite" }}>
-            ¡Has llegado a {targetObra.titulo}!
+            ¡Has llegado a <span style={{ fontFamily:T.fontDisplay, fontWeight:400, fontStyle:"italic" }}>{targetObra.titulo}</span>!
           </div>
         </div>
       )}
@@ -3338,15 +3359,15 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
            {/* Active Hotspot Card */}
            <div style={{ padding:"0 24px", position:"absolute", bottom:110, left:0, right:0, transition:"all 0.3s cubic-bezier(0.2,0.8,0.2,1)", transform: activeHotspot ? "translateY(0)" : "translateY(20px)", opacity: activeHotspot ? 1 : 0, pointerEvents: activeHotspot ? "auto" : "none" }}>
              {activeHotspot && (
-               <div style={{ backgroundColor:"rgba(12,10,9,0.85)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:24, padding:24, boxShadow:"0 20px 40px rgba(0,0,0,0.6)", position:"relative" }}>
-                 <button onClick={() => setActiveHotspot(null)} style={{ position:"absolute", top:16, right:16, background:"none", border:"none", color:T.textDisabled, cursor:"pointer", padding:4 }}>
+               <div style={{ backgroundColor:"rgba(12,10,9,0.85)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:24, padding:"32px 28px", boxShadow:"0 20px 40px rgba(0,0,0,0.6)", position:"relative" }}>
+                 <button onClick={() => setActiveHotspot(null)} style={{ position:"absolute", top:20, right:20, background:"none", border:"none", color:T.textDisabled, cursor:"pointer", padding:4 }}>
                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                  </button>
-                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                 <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:16 }}>
                    <span style={{ width:8, height:8, backgroundColor:T.brandPrimary, borderRadius:"50%", boxShadow:`0 0 10px ${T.brandPrimary}` }} />
-                   <h4 style={{ fontFamily:T.fontDisplay, fontSize:18, color:"white", margin:0 }}>{activeHotspot.title}</h4>
+                   <h4 style={{ fontFamily:T.fontDisplay, fontSize:22, fontWeight:400, fontStyle:"italic", color:"white", margin:0, letterSpacing:"0.02em" }}>{activeHotspot.title}</h4>
                  </div>
-                 <p style={{ fontFamily:T.fontUI, fontSize:14, color:T.textSecondary, lineHeight:1.5, margin:0 }}>{activeHotspot.desc}</p>
+                 <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, lineHeight:1.6, margin:0, paddingLeft:18 }}>{activeHotspot.desc}</p>
                </div>
              )}
            </div>
