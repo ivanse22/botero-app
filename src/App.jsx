@@ -3119,6 +3119,13 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
   const [phase, setPhase] = useState("confirmation"); 
   const [distance, setDistance] = useState(15);
   const [isSimulatingCamera, setIsSimulatingCamera] = useState(false);
+  const [activeHotspot, setActiveHotspot] = useState(null);
+
+  const MOCK_HOTSPOTS = [
+    { id: 1, x: "35%", y: "45%", title: "Volumen facial", desc: "Observa la característica dilatación de los volúmenes en el rostro, un sello inconfundible del maestro." },
+    { id: 2, x: "60%", y: "80%", title: "Las manos", desc: "La desproporción intencional en las extremidades enfatiza la monumentalidad de la figura." },
+    { id: 3, x: "80%", y: "30%", title: "El paisaje de fondo", desc: "Inspirado en la técnica del sfumato renacentista, pero reinterpretado con la paleta de colores de Botero." }
+  ];
   
   useEffect(() => {
     let t;
@@ -3132,6 +3139,7 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
         setDistance(d => {
           if (d <= 2) {
             setPhase("arrival");
+            setTimeout(() => setPhase("interaction"), 2500); // Transition to interaction
             clearInterval(t);
             return 0;
           }
@@ -3166,7 +3174,7 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
               backgroundImage:`url(${targetObra.img || "/monalisa.jpg"})`, 
               backgroundSize:"cover", backgroundPosition:"center", 
               opacity: phase === "activation" ? 0.15 : 0.35, 
-              filter: phase==="off_route" ? "blur(12px) brightness(0.4) grayscale(0.5)" : "blur(4px) brightness(0.7)",
+              filter: phase==="off_route" ? "blur(12px) brightness(0.4) grayscale(0.5)" : (phase === "interaction" || phase === "arrival") ? "blur(0px) brightness(1)" : "blur(4px) brightness(0.7)",
               transform: isSimulatingCamera ? "scale(1.05)" : "scale(1)",
               transition: "all 3s ease-out" 
             }} />
@@ -3298,32 +3306,61 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
       )}
 
       {/* Screen 7: Llegada */}
+      {/* Screen 7: Llegada */}
       {phase === "arrival" && (
-        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", justifyContent:"flex-end", zIndex:20 }} className="fade-up">
-          <div style={{ display:"flex", justifyContent:"center", marginBottom:40 }}>
-            <div style={{ backgroundColor:"rgba(255,255,255,0.95)", color:"#0C0A09", padding:"12px 24px", borderRadius:T.rFull, fontWeight:700, fontFamily:T.fontUI, fontSize:15, boxShadow:"0 8px 24px rgba(0,0,0,0.4)", letterSpacing:"0.02em" }}>¡Has llegado!</div>
+        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", zIndex:20, pointerEvents:"none" }} className="fade-up">
+          <div style={{ backgroundColor:"rgba(255,255,255,0.95)", color:"#0C0A09", padding:"16px 32px", borderRadius:T.rFull, fontWeight:700, fontFamily:T.fontUI, fontSize:18, boxShadow:"0 16px 40px rgba(0,0,0,0.6)", letterSpacing:"0.02em", animation:"pulse 1.5s infinite" }}>
+            ¡Has llegado a {targetObra.titulo}!
           </div>
-          <div style={{ backgroundColor:T.bgCardRaised, borderTopLeftRadius:32, borderTopRightRadius:32, padding:32, borderTop:`1px solid ${T.borderMedium}`, boxShadow:"0 -10px 40px rgba(0,0,0,0.6)" }}>
-             <div style={{ display:"flex", gap:20, marginBottom:32 }}>
-                <div style={{ width:80, height:100, borderRadius:12, overflow:"hidden", flexShrink:0, border:`1px solid ${T.borderSubtle}`, boxShadow:"0 4px 12px rgba(0,0,0,0.3)" }}>
-                  <img src={targetObra.img || "/monalisa.jpg"} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
-                </div>
-                <div style={{ display:"flex", flexDirection:"column", justifyContent:"center" }}>
-                  <h3 style={{ fontFamily:T.fontDisplay, fontSize:26, color:T.textPrimary, margin:0, marginBottom:6, lineHeight:1.1 }}>{targetObra.titulo}</h3>
-                  <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, margin:0 }}>Fernando Botero</p>
-                </div>
-             </div>
-             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"center", gap:10, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                Escuchar guía
+        </div>
+      )}
+
+      {/* Screen 8: Interacción (Hotspots) */}
+      {phase === "interaction" && (
+        <div style={{ position:"absolute", inset:0, zIndex:20, display:"flex", flexDirection:"column", animation:"fade 1s ease" }}>
+           {/* Hotspots layer */}
+           <div style={{ flex:1, position:"relative" }}>
+             {MOCK_HOTSPOTS.map(spot => (
+               <div key={spot.id} onClick={() => setActiveHotspot(spot)} className="fade-up"
+                 style={{
+                   position:"absolute", left:spot.x, top:spot.y, transform:"translate(-50%, -50%)",
+                   width:44, height:44, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
+                   animationDelay: `${spot.id * 0.15}s`
+                 }}>
+                 {/* Outer ping */}
+                 <div style={{ position:"absolute", inset:0, borderRadius:"50%", backgroundColor:"rgba(255,255,255,0.6)", animation:"ping 2s cubic-bezier(0, 0, 0.2, 1) infinite" }} />
+                 {/* Inner dot */}
+                 <div style={{ position:"relative", width:14, height:14, backgroundColor:"white", borderRadius:"50%", boxShadow:"0 0 12px rgba(0,0,0,0.5)", border: activeHotspot?.id === spot.id ? `3px solid ${T.brandPrimary}` : "2px solid rgba(0,0,0,0.2)", transition:"all 0.2s ease" }} />
+               </div>
+             ))}
+           </div>
+
+           {/* Active Hotspot Card */}
+           <div style={{ padding:"0 24px", position:"absolute", bottom:110, left:0, right:0, transition:"all 0.3s cubic-bezier(0.2,0.8,0.2,1)", transform: activeHotspot ? "translateY(0)" : "translateY(20px)", opacity: activeHotspot ? 1 : 0, pointerEvents: activeHotspot ? "auto" : "none" }}>
+             {activeHotspot && (
+               <div style={{ backgroundColor:"rgba(12,10,9,0.85)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:24, padding:24, boxShadow:"0 20px 40px rgba(0,0,0,0.6)", position:"relative" }}>
+                 <button onClick={() => setActiveHotspot(null)} style={{ position:"absolute", top:16, right:16, background:"none", border:"none", color:T.textDisabled, cursor:"pointer", padding:4 }}>
+                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                 </button>
+                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                   <span style={{ width:8, height:8, backgroundColor:T.brandPrimary, borderRadius:"50%", boxShadow:`0 0 10px ${T.brandPrimary}` }} />
+                   <h4 style={{ fontFamily:T.fontDisplay, fontSize:18, color:"white", margin:0 }}>{activeHotspot.title}</h4>
+                 </div>
+                 <p style={{ fontFamily:T.fontUI, fontSize:14, color:T.textSecondary, lineHeight:1.5, margin:0 }}>{activeHotspot.desc}</p>
+               </div>
+             )}
+           </div>
+
+           {/* Minimal Bottom Dock */}
+           <div style={{ position:"absolute", bottom:"max(24px, env(safe-area-inset-bottom, 24px))", left:24, right:24, display:"flex", gap:12 }}>
+             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ flex:1, backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Escuchar audio
              </button>
-             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ width:"100%", backgroundColor:"transparent", color:"white", border:`1px solid ${T.borderSubtle}`, borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:16 }}>
-                Ver ficha completa
+             <button onClick={onClose} className="btn-tap" style={{ flex:1, backgroundColor:"rgba(12,10,9,0.7)", backdropFilter:"blur(12px)", border:`1px solid rgba(255,255,255,0.1)`, color:"white", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>
+                Salir de AR
              </button>
-             <button onClick={onClose} className="btn-tap" style={{ width:"100%", backgroundColor:"transparent", color:T.textSecondary, border:"none", padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>
-                Continuar recorrido
-             </button>
-          </div>
+           </div>
         </div>
       )}
     </div>
