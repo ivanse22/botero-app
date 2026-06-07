@@ -467,7 +467,7 @@ const UTILS = [
 
 function HomeScreen({ onNavigate, onNumpad, onMic, isListening, networkError, onQR }) {
   return (
-    <div style={{ flex:1, overflowY:"auto", overflowX:"hidden", scrollbarWidth:"none", msOverflowStyle:"none", position:"relative" }}>
+    <div style={{ flex:1, height:"100%", overflowY:"auto", overflowX:"hidden", scrollbarWidth:"none", msOverflowStyle:"none", position:"relative" }}>
       {/* MODULE 1 — Editorial Masthead Header */}
       <div style={{ position:"sticky", top:0, zIndex:40, backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", backgroundColor:"rgba(12,10,9,0.75)", borderBottom:`1px solid ${T.borderSubtle}`, padding:"max(12px, env(safe-area-inset-top, 12px)) 24px 14px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         
@@ -505,7 +505,7 @@ function HomeScreen({ onNavigate, onNumpad, onMic, isListening, networkError, on
       </div>
 
       {/* ── TOP FOLD (Hero + OmniBar) ── */}
-      <div style={{ minHeight:"calc(100dvh - 165px)", display:"flex", flexDirection:"column", position:"relative", borderBottom:`1px solid ${T.borderSubtle}`, background:`linear-gradient(180deg, rgba(192,57,43,0.06) 0%, transparent 100%)`, marginBottom:36, overflow:"hidden" }}>
+      <div style={{ minHeight:"calc(100% - 165px)", display:"flex", flexDirection:"column", position:"relative", borderBottom:`1px solid ${T.borderSubtle}`, background:`linear-gradient(180deg, rgba(192,57,43,0.06) 0%, transparent 100%)`, marginBottom:36, overflow:"hidden" }}>
         
         {/* Fondo Mona Lisa (Solo Top Fold) */}
         <div style={{ position:"absolute", inset:0, zIndex:0, pointerEvents:"none" }}>
@@ -1158,7 +1158,7 @@ function ExperienciasSheet({ onSelect, onSelectObra, onClose, rutaActiva }) {
       <div onClick={onClose} style={{ position:"absolute", inset:0, zIndex:50, backgroundColor:"rgba(0,0,0,0.55)", backdropFilter:"blur(4px)", WebkitBackdropFilter:"blur(4px)" }}/>
 
       {/* Sheet */}
-      <div className="sheet-in" style={{ position:"absolute", bottom:64, left:0, right:0, zIndex:55, backgroundColor:T.bgCard, borderRadius:"20px 20px 0 0", borderTop:`1px solid ${T.borderMedium}`, borderLeft:`1px solid ${T.borderSubtle}`, borderRight:`1px solid ${T.borderSubtle}`, maxHeight:"80vh", display:"flex", flexDirection:"column", overflow:"hidden" }}>
+      <div className="sheet-in" style={{ position:"absolute", bottom:64, left:0, right:0, zIndex:55, backgroundColor:T.bgCard, borderRadius:"20px 20px 0 0", borderTop:`1px solid ${T.borderMedium}`, borderLeft:`1px solid ${T.borderSubtle}`, borderRight:`1px solid ${T.borderSubtle}`, maxHeight:"80%", display:"flex", flexDirection:"column", overflow:"hidden" }}>
 
         {/* Handle */}
         <div style={{ display:"flex", justifyContent:"center", paddingTop:12, paddingBottom:4, flexShrink:0 }}>
@@ -1936,8 +1936,8 @@ function FichaObraScreen({ obraId, onClose, onPreguntarIA, onHome, onSelectObra,
       <div style={{ flex:1, overflowY:"auto", overflowX:"hidden", scrollbarWidth:"none", msOverflowStyle:"none" }}>
         <div style={{ paddingBottom: 110 }}>
           
-          {/* Phase 1: Hero Image Full-Bleed (45vh) */}
-          <div style={{ width: "100%", height: "45vh", background:"linear-gradient(160deg,#2A1A0E 0%,#1A0E06 100%)", position:"relative", overflow:"hidden" }}>
+          {/* Phase 1: Hero Image Full-Bleed */}
+          <div style={{ width: "100%", height: 380, background:"linear-gradient(160deg,#2A1A0E 0%,#1A0E06 100%)", position:"relative", overflow:"hidden" }}>
             {!loaded && (
               <div style={{ position:"absolute", inset:0, background:"linear-gradient(90deg,rgba(200,130,50,0.04) 25%,rgba(200,130,50,0.10) 50%,rgba(200,130,50,0.04) 75%)", backgroundSize:"200% 100%", animation:"shimmer 1.6s infinite" }}/>
             )}
@@ -2798,7 +2798,7 @@ function PaseModal({ onClose }) {
       </button>
 
       {/* Ticket Modal */}
-      <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center", animation:"fadeSlideUp 0.4s cubic-bezier(0.2,0.8,0.2,1) both", overflowY:"auto", maxHeight:"85vh", paddingBottom:20 }}>
+      <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center", animation:"fadeSlideUp 0.4s cubic-bezier(0.2,0.8,0.2,1) both", overflowY:"auto", maxHeight:"85%", paddingBottom:20 }}>
         
         {/* The Ticket Card */}
         <div style={{ width:320, backgroundColor:"#F5F2ED", borderRadius:24, overflow:"hidden", boxShadow:"0 20px 50px rgba(0,0,0,0.5)", position:"relative", flexShrink:0 }}>
@@ -3026,7 +3026,7 @@ function GlobalScanOverlay({ onClose, onSuccess }) {
 
         {/* UI DEL VISOR RETÍCULA (sólo antes del AR) */}
         {!isAR && (
-          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", paddingBottom:"15vh" }}>
+          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", paddingBottom:120 }}>
             <div style={{ width:260, height:260, position:"relative" }}>
               <div style={{ position:"absolute", inset:0, boxShadow:"0 0 0 9999px rgba(0,0,0,0.5)", borderRadius:16 }}/>
               {[{t:0,l:0,bt:"none",bb:"none"},{t:0,r:0,bl:"none",bb:"none"},{b:0,l:0,bt:"none",br:"none"},{b:0,r:0,bt:"none",bl:"none"}].map((c,i)=>(
@@ -3064,7 +3064,7 @@ function GlobalScanOverlay({ onClose, onSuccess }) {
 
         {/* ZONA INFERIOR / BOTONES */}
         {!isAR && (
-          <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"25vh", background:"linear-gradient(to top, rgba(0,0,0,0.9), transparent)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", paddingBottom:40, zIndex:2 }}>
+          <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"25%", background:"linear-gradient(to top, rgba(0,0,0,0.9), transparent)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-end", paddingBottom:40, zIndex:2 }}>
             {phase === "idle" && (
               <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:12 }}>
                 <button onClick={startScan} aria-label="Escanear ahora" className="card-tap"
@@ -3176,7 +3176,7 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
 
             {/* Guía AR en el suelo (Con perspectiva 3D real) */}
             {phase === "active" && (
-              <div style={{ position:"absolute", bottom:"-10%", left:"-20%", right:"-20%", height:"80vh", transformStyle:"preserve-3d", transform:"rotateX(60deg) translateZ(-50px)", zIndex:1, opacity:0.85 }}>
+              <div style={{ position:"absolute", bottom:"-10%", left:"-20%", right:"-20%", height:"80%", transformStyle:"preserve-3d", transform:"rotateX(60deg) translateZ(-50px)", zIndex:1, opacity:0.85 }}>
                 <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ filter:"drop-shadow(0 0 12px rgba(192,57,43,0.9))" }}>
                   <defs>
                     <linearGradient id="arGradient" x1="0" y1="100%" x2="0" y2="0%">
