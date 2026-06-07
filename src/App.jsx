@@ -3330,9 +3330,10 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
       {/* Screen 7: Llegada */}
       {phase === "arrival" && (
         <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", zIndex:20, pointerEvents:"none" }} className="fade-up">
-          <div style={{ backgroundColor:"rgba(255,255,255,0.95)", color:"#0C0A09", padding:"16px 32px", borderRadius:T.rFull, fontWeight:700, fontFamily:T.fontUI, fontSize:18, boxShadow:"0 16px 40px rgba(0,0,0,0.6)", letterSpacing:"0.02em", animation:"pulse 1.5s infinite" }}>
-            ¡Has llegado a <span style={{ fontFamily:T.fontDisplay, fontWeight:400, fontStyle:"italic" }}>{targetObra.titulo}</span>!
-          </div>
+          <p style={{ fontFamily:T.fontUI, fontSize:14, color:T.brandPrimary, margin:0, marginBottom:8, textTransform:"uppercase", letterSpacing:"0.1em", fontWeight:600 }}>Has llegado a</p>
+          <h2 style={{ fontFamily:T.fontDisplay, fontSize:36, color:"white", margin:0, fontWeight:400, fontStyle:"italic", textShadow:"0 4px 24px rgba(0,0,0,0.8)", textAlign:"center", padding:"0 24px" }}>
+            {targetObra.titulo}
+          </h2>
         </div>
       )}
 
@@ -3357,7 +3358,7 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
            </div>
 
            {/* Active Hotspot Card */}
-           <div style={{ padding:"0 24px", position:"absolute", bottom:110, left:0, right:0, transition:"all 0.3s cubic-bezier(0.2,0.8,0.2,1)", transform: activeHotspot ? "translateY(0)" : "translateY(20px)", opacity: activeHotspot ? 1 : 0, pointerEvents: activeHotspot ? "auto" : "none" }}>
+           <div style={{ padding:"0 24px", position:"absolute", bottom:160, left:0, right:0, transition:"all 0.3s cubic-bezier(0.2,0.8,0.2,1)", transform: activeHotspot ? "translateY(0)" : "translateY(20px)", opacity: activeHotspot ? 1 : 0, pointerEvents: activeHotspot ? "auto" : "none" }}>
              {activeHotspot && (
                <div style={{ backgroundColor:"rgba(12,10,9,0.85)", backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)", border:`1px solid rgba(255,255,255,0.15)`, borderRadius:24, padding:"32px 28px", boxShadow:"0 20px 40px rgba(0,0,0,0.6)", position:"relative" }}>
                  <button onClick={() => setActiveHotspot(null)} style={{ position:"absolute", top:20, right:20, background:"none", border:"none", color:T.textDisabled, cursor:"pointer", padding:4 }}>
@@ -3373,12 +3374,12 @@ function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
            </div>
 
            {/* Minimal Bottom Dock */}
-           <div style={{ position:"absolute", bottom:"max(24px, env(safe-area-inset-bottom, 24px))", left:24, right:24, display:"flex", gap:12 }}>
-             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ flex:1, backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+           <div style={{ position:"absolute", bottom:"max(24px, env(safe-area-inset-bottom, 24px))", left:24, right:24, display:"flex", flexDirection:"column", gap:12 }}>
+             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:10, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                 Escuchar audio
              </button>
-             <button onClick={onClose} className="btn-tap" style={{ flex:1, backgroundColor:"rgba(12,10,9,0.7)", backdropFilter:"blur(12px)", border:`1px solid rgba(255,255,255,0.1)`, color:"white", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>
+             <button onClick={onClose} className="btn-tap" style={{ width:"100%", backgroundColor:"rgba(12,10,9,0.7)", backdropFilter:"blur(12px)", border:`1px solid rgba(255,255,255,0.1)`, color:"white", borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>
                 Salir de AR
              </button>
            </div>
