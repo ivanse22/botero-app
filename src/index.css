@@ -1,11 +1,33 @@
 /* reset */
-body, html, #root {
+body, html {
   margin: 0;
   padding: 0;
-  width: 100vw;
+  width: 100%;
   height: 100dvh;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  max-width: 430px;
   background-color: #0C0A09;
   display: flex;
   flex-direction: column;
+  position: relative;
   overflow: hidden;
+  box-shadow: 0 0 50px rgba(0,0,0,0.8);
+}
+
+@media (min-width: 431px) {
+  #root {
+    height: 90dvh;
+    max-height: 932px;
+    border-radius: 40px;
+    border: 8px solid #1a1a1a;
+  }
 }
