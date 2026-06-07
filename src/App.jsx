@@ -347,7 +347,7 @@ function BottomNav({ activeTab, onTab }) {
       backgroundColor:"rgba(12,10,9,0.9)",
       borderTop:`1px solid ${T.borderSubtle}`,
       display:"flex", alignItems:"center",
-      padding:"8px 0 14px", zIndex:60,
+      padding:"8px 0 max(14px, env(safe-area-inset-bottom, 14px))", zIndex:60,
     }}>
       {NAV_ITEMS.map(item => {
         const isActive = activeTab === item.id;
@@ -505,7 +505,7 @@ function HomeScreen({ onNavigate, onNumpad, onMic, isListening, networkError, on
       </div>
 
       {/* ── TOP FOLD (Hero + OmniBar) ── */}
-      <div style={{ minHeight:"calc(90vh - 65px)", display:"flex", flexDirection:"column", position:"relative", borderBottom:`1px solid ${T.borderSubtle}`, background:`linear-gradient(180deg, rgba(192,57,43,0.06) 0%, transparent 100%)`, marginBottom:36, overflow:"hidden" }}>
+      <div style={{ minHeight:"calc(100dvh - 165px)", display:"flex", flexDirection:"column", position:"relative", borderBottom:`1px solid ${T.borderSubtle}`, background:`linear-gradient(180deg, rgba(192,57,43,0.06) 0%, transparent 100%)`, marginBottom:36, overflow:"hidden" }}>
         
         {/* Fondo Mona Lisa (Solo Top Fold) */}
         <div style={{ position:"absolute", inset:0, zIndex:0, pointerEvents:"none" }}>
@@ -540,7 +540,7 @@ function HomeScreen({ onNavigate, onNumpad, onMic, isListening, networkError, on
         </div>
 
         {/* MODULE 3 — Omni Bar */}
-        <div className="fade-up fade-up-4" style={{ padding:"0 24px", marginBottom:40 }}>
+        <div className="fade-up fade-up-4" style={{ padding:"0 24px", marginBottom:24 }}>
           <div className="omni-tap" onClick={onNumpad} style={{ backgroundColor:"rgba(18,15,13,0.85)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", border:`1px solid ${T.borderMedium}`, borderRadius:T.rFull, padding:"16px 16px 16px 22px", display:"flex", alignItems:"center", gap:14, boxShadow:`0 16px 40px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)`, cursor:"pointer", transition:"transform 0.15s ease" }}>
             <div style={{ flexShrink:0 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={T.textSecondary} strokeWidth="1.8" strokeLinecap="round">
@@ -3397,7 +3397,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ width:"100vw", height:"100dvh", backgroundColor:T.bgBase,
+    <div style={{ width:"100%", height:"100%", backgroundColor:T.bgBase,
       display:"flex", flexDirection:"column", position:"relative",
       overflow:"hidden", fontFamily:T.fontUI }}>
       <GlobalStyles/>
