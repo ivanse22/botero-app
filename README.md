@@ -15,6 +15,7 @@ Este flujo mapea el viaje del usuario desde que entra al Patio Central hasta que
 *   **Sincronización de Posición (SYS01):** Implementamos un sistema que vincula la ubicación física del usuario con el plano 2D isométrico, eliminando la desorientación inicial.
 *   **Generación de Trazado (SYS02):** La app no solo muestra un punto, traza una ruta dinámica hacia la obra elegida (ej. *La Mona Lisa*).
 *   **Gestión de Desvíos y Feedback (SYS03/PO5):** Una de las grandes mejoras de UX fue la detección de desvíos. Si el usuario se aleja más de 3m de la ruta, la app no genera un error, sino un **Model Feedback** amable que le permite recalcular o explorar libremente, manteniendo el control siempre en sus manos.
+*   **Navegación AR (Realidad Aumentada):** Incorporación de una simulación frontend de AR de alta fidelidad. Utilizando diseño paramétrico y transformaciones 3D (`perspective`, `rotateX`), el usuario experimenta una ruta inmersiva "acostada" sobre el piso del museo con un HUD dinámico en vidrio esmerilado que evita las colisiones visuales.
 
 ### 2. El Diálogo con el Maestro (Flow 02)
 Centrado en la interacción profunda una vez que el usuario está frente al cuadro utilizando Realidad Aumentada e IA.

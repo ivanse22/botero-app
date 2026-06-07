@@ -213,6 +213,16 @@ const GlobalStyles = () => (
       from { transform:translateY(20px); opacity:0.6; }
       to   { transform:translateY(0);    opacity:1; }
     }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
     .fade-up   { animation: fadeSlideUp 0.55s cubic-bezier(.22,.68,0,1.2) both; }
     .fade-up-1 { animation-delay:0.05s; }
@@ -250,19 +260,37 @@ function LiveDot() {
   );
 }
 
-function MicButton({ onPress, isListening }) {
+function MicButton({ onPress, isListening, networkError }) {
+  const [isShaking, setIsShaking] = useState(false);
+  
+  const handlePress = (e) => {
+    if (networkError) {
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 500);
+    }
+    onPress(e);
+  };
+
   return (
-    <button onMouseDown={onPress} style={{
+    <button onMouseDown={handlePress} style={{
       width:48, height:48, borderRadius:"50%",
-      backgroundColor:T.brandPrimary, border:"none", cursor:"pointer",
+      backgroundColor: networkError ? "transparent" : T.brandPrimary, 
+      border: networkError ? `2px solid ${T.textDisabled}` : "none",
+      cursor:"pointer",
       display:"flex", alignItems:"center", justifyContent:"center",
-      position:"relative", flexShrink:0, transition:"transform 0.15s ease",
+      position:"relative", flexShrink:0, transition:"all 0.15s ease",
+      transform: isShaking ? "translateX(-4px)" : "scale(1)",
+      animation: isShaking ? "shake 0.4s ease-in-out" : "none"
     }}>
-      <span style={{ position:"absolute", inset:-4, borderRadius:"50%", border:`1.5px solid ${T.brandPrimary}`,
-        animation: isListening ? "breathe 1.2s ease-out infinite" : "breathe 2.4s ease-out infinite", opacity:0.6 }}/>
-      <span style={{ position:"absolute", inset:-10, borderRadius:"50%", border:`1px solid ${T.brandPrimary}`,
-        animation: isListening ? "breathe2 1.2s ease-out infinite 0.2s" : "breathe2 2.4s ease-out infinite 0.4s", opacity:0.3 }}/>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {!networkError && (
+        <>
+          <span style={{ position:"absolute", inset:-4, borderRadius:"50%", border:`1.5px solid ${T.brandPrimary}`,
+            animation: isListening ? "breathe 1.2s ease-out infinite" : "breathe 2.4s ease-out infinite", opacity:0.6 }}/>
+          <span style={{ position:"absolute", inset:-10, borderRadius:"50%", border:`1px solid ${T.brandPrimary}`,
+            animation: isListening ? "breathe2 1.2s ease-out infinite 0.2s" : "breathe2 2.4s ease-out infinite 0.4s", opacity:0.3 }}/>
+        </>
+      )}
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={networkError ? T.textDisabled : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="9" y="2" width="6" height="11" rx="3"/>
         <path d="M5 10a7 7 0 0 0 14 0"/>
         <line x1="12" y1="19" x2="12" y2="22"/>
@@ -273,11 +301,12 @@ function MicButton({ onPress, isListening }) {
 }
 
 function Toast({ message, type, visible }) {
+  const isOffline = type === "offline";
   return (
     <div style={{
       position:"absolute", bottom:100, left:24, right:24, zIndex:200,
-      backgroundColor: type==="error" ? "#2D1010" : "#0F2318",
-      border:`1px solid ${type==="error" ? "rgba(192,57,43,0.4)" : "rgba(39,174,96,0.4)"}`,
+      backgroundColor: type==="error" ? "#2D1010" : isOffline ? "#1E1808" : "#0F2318",
+      border:`1px solid ${type==="error" ? "rgba(192,57,43,0.4)" : isOffline ? "rgba(212,160,23,0.4)" : "rgba(39,174,96,0.4)"}`,
       borderRadius:T.rMd, padding:"14px 18px",
       display:"flex", alignItems:"flex-start", gap:12,
       opacity: visible ? 1 : 0,
@@ -285,9 +314,9 @@ function Toast({ message, type, visible }) {
       transition:"opacity 0.25s ease, transform 0.25s ease",
       pointerEvents:"none",
     }}>
-      <span style={{ fontSize:18, flexShrink:0 }}>{type==="error" ? "⚠" : "📡"}</span>
+      <span style={{ fontSize:18, flexShrink:0 }}>{type==="error" ? "⚠" : isOffline ? "📡" : "✓"}</span>
       <div>
-        <p style={{ fontFamily:T.fontUI, fontSize:13, fontWeight:500, color:T.textPrimary, lineHeight:1.3 }}>{message.title}</p>
+        <p style={{ fontFamily:T.fontUI, fontSize:13, fontWeight:600, color: isOffline ? "#D4A017" : T.textPrimary, lineHeight:1.3 }}>{message.title}</p>
         <p style={{ fontFamily:T.fontUI, fontSize:12, color:T.textSecondary, marginTop:3, lineHeight:1.4 }}>{message.body}</p>
       </div>
     </div>
@@ -523,7 +552,7 @@ function HomeScreen({ onNavigate, onNumpad, onMic, isListening, networkError, on
             <div style={{ flex:1 }}>
               <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textDisabled, fontWeight:300 }}>Ingresa el número de la obra...</p>
             </div>
-            <MicButton onPress={(e) => { e.stopPropagation(); onMic(); }} isListening={isListening}/>
+            <MicButton onPress={(e) => { e.stopPropagation(); onMic(); }} isListening={isListening} networkError={networkError}/>
           </div>
           <p style={{ fontFamily:T.fontUI, fontSize:11, color:T.textDisabled, textAlign:"center", marginTop:16, letterSpacing:"0.04em", opacity:0.8 }}>
             {networkError ? "⚡ Modo sin conexión · Guías de audio pre-descargadas disponibles" : "Toca para digitar · Mantén el micrófono para buscar por voz con IA"}
@@ -1871,7 +1900,7 @@ function MapaScreen({ onDetalleObra }) {
 ═══════════════════════════════════════════════════════ */
 
 // [SYS02] + [P03] — Ficha de Obra con skeleton loader
-function FichaObraScreen({ obraId, onClose, onPreguntarIA, onHome, onSelectObra, onColeccion, isSaved, onToggleColeccion }) {
+function FichaObraScreen({ obraId, onClose, onPreguntarIA, onHome, onSelectObra, onColeccion, isSaved, onToggleColeccion, onARNavigation }) {
   const obra = OBRAS.find(o => o.id === obraId);
   const [loaded, setLoaded] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -1967,6 +1996,14 @@ function FichaObraScreen({ obraId, onClose, onPreguntarIA, onHome, onSelectObra,
                 <span style={{ fontFamily:T.fontUI, fontSize:10, color:T.textDisabled, marginBottom:6, letterSpacing:"0.05em" }}>Piso</span>
                 <span style={{ fontFamily:T.fontUI, fontSize:14, fontWeight:500, color:T.textPrimary }}>{obra.sala}</span>
               </div>
+            </div>
+
+            {/* Acciones AR */}
+            <div style={{ marginBottom:36 }}>
+              <button onClick={() => onARNavigation(obra)} style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Iniciar ruta con AR
+              </button>
             </div>
 
             {/* Audio Inmersivo */}
@@ -2118,10 +2155,11 @@ function PreguntarIASheet({ obra, networkError, onClose, onEnviar, onHome }) {
         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           <div style={{ width:8, height:8, borderRadius:"50%",
             backgroundColor: networkError ? "#D4A017" : T.brandGreen,
-            boxShadow: networkError ? "0 0 8px #D4A01766" : "0 0 8px rgba(39,174,96,0.5)" }}/>
+            boxShadow: networkError ? "0 0 8px #D4A01766" : "0 0 8px rgba(39,174,96,0.5)",
+            animation: networkError ? "pulse 2s infinite" : "none" }}/>
           <p style={{ fontFamily:T.fontUI, fontSize:10, letterSpacing:"0.14em", textTransform:"uppercase",
-            color: networkError ? "#D4A017" : T.brandGreen }}>
-            {networkError ? "Sin conexión · Usando audio básico" : "Conectado · IA disponible"}
+            color: networkError ? "#D4A017" : T.brandGreen, fontWeight:600 }}>
+            {networkError ? "Sin señal · Modo local" : "Conectado · IA disponible"}
           </p>
         </div>
 
@@ -2129,42 +2167,50 @@ function PreguntarIASheet({ obra, networkError, onClose, onEnviar, onHome }) {
         <div>
           <p style={{ fontFamily:T.fontUI, fontSize:10, letterSpacing:"0.16em", color:T.textDisabled,
             textTransform:"uppercase", marginBottom:3 }}>Sobre</p>
-          <p style={{ fontFamily:T.fontDisplay, fontSize:18, fontWeight:400, color:T.textPrimary }}>{obra?.titulo}</p>
+          <p style={{ fontFamily:T.fontDisplay, fontSize:22, fontWeight:400, color:T.textPrimary }}>{obra?.titulo}</p>
         </div>
 
         {networkError ? (
-          <>
-            <div style={{ backgroundColor:"rgba(212,160,23,0.08)", border:"1px solid rgba(212,160,23,0.25)",
-              borderRadius:14, padding:"14px 16px", display:"flex", gap:12, alignItems:"flex-start" }}>
-              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4A017" strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink:0, marginTop:1 }}>
-                <line x1="1" y1="1" x2="23" y2="23"/>
-                <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
-                <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
-                <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
-                <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
-                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-                <line x1="12" y1="20" x2="12.01" y2="20"/>
-              </svg>
-              <div>
-                <p style={{ fontFamily:T.fontUI, fontSize:12, fontWeight:500, color:"#D4A017", marginBottom:3 }}>Modo sin conexión</p>
-                <p style={{ fontFamily:T.fontUI, fontSize:11, color:T.textSecondary, lineHeight:"148%" }}>
-                  Tu guía de audio pre-descargada estará disponible. La respuesta de IA en vivo no está disponible.
-                </p>
+          <div style={{ display:"flex", flexDirection:"column", gap:16, animation:"fadeIn 0.5s ease" }}>
+            <div style={{ backgroundColor:"rgba(212,160,23,0.05)", border:`1px solid rgba(212,160,23,0.2)`,
+              borderRadius:16, padding:"16px", display:"flex", gap:12, alignItems:"center" }}>
+              <div style={{ width:36, height:36, borderRadius:18, backgroundColor:"rgba(212,160,23,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4A017" strokeWidth="2" strokeLinecap="round">
+                  <path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.56 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                </svg>
               </div>
+              <p style={{ fontFamily:T.fontUI, fontSize:12, color:T.textSecondary, lineHeight:"145%" }}>
+                <span style={{ color:"#D4A017", fontWeight:600 }}>Conexión limitada.</span> Explora los datos locales curados por el equipo del museo:
+              </p>
             </div>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {[
+                {q: "¿Cuál es el estilo de esta obra?", sub: "Explica el Figurativismo"},
+                {q: "¿Qué técnica y materiales se utilizaron?", sub: "Detalles del soporte"},
+                {q: "¿Cuál es el contexto histórico?", sub: "Época y significado"}
+              ].map((item, i) => (
+                <button key={i} onClick={() => onEnviar("offline")}
+                  style={{ textAlign:"left", padding:"14px 18px", borderRadius:16, border:`1px solid ${T.borderSubtle}`, backgroundColor:"rgba(255,255,255,0.02)", cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center", transition:"all 0.2s" }} className="card-tap">
+                  <div>
+                    <p style={{ fontFamily:T.fontUI, fontSize:13, color:T.textPrimary, fontWeight:500, marginBottom:2 }}>{item.q}</p>
+                    <p style={{ fontFamily:T.fontUI, fontSize:11, color:T.textDisabled }}>{item.sub}</p>
+                  </div>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={T.textDisabled} strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              ))}
+            </div>
+
             <button onClick={() => onEnviar("offline")}
-              aria-label="Escuchar audio básico de la obra"
-              style={{ height:52, borderRadius:16, backgroundColor:"#D4A017", border:"none", cursor:"pointer",
-                fontFamily:T.fontUI, fontSize:14, fontWeight:500, color:"white",
-                display:"flex", alignItems:"center", justifyContent:"center", gap:9,
-                boxShadow:"0 4px 18px rgba(212,160,23,0.35)" }}>
-              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              style={{ marginTop:8, height:54, borderRadius:16, backgroundColor:T.bgCardRaised, border:`1px solid #D4A01740`, cursor:"pointer",
+                fontFamily:T.fontUI, fontSize:14, fontWeight:600, color:"#D4A017",
+                display:"flex", alignItems:"center", justifyContent:"center", gap:10 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
               </svg>
-              Escuchar audio básico
+              Escuchar Guía Completa
             </button>
-          </>
+          </div>
         ) : (
           <>
             <div>
@@ -2741,21 +2787,21 @@ function PaseModal({ onClose }) {
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Tu Pase Digital"
-      style={{ position:"absolute", inset:0, zIndex:200, display:"flex", flexDirection:"column", justifyContent:"flex-end" }}>
+      style={{ position:"absolute", inset:0, zIndex:200, display:"flex", flexDirection:"column", justifyContent:"center" }}>
       {/* Backdrop */}
       <div onClick={onClose}
-        style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.4)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", animation:"fadeIn 0.3s ease both" }}/>
+        style={{ position:"absolute", inset:0, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(12px)", WebkitBackdropFilter:"blur(12px)", animation:"fadeIn 0.3s ease both" }}/>
+
+      {/* Close Button (Fixed Top Right) */}
+      <button onClick={onClose} style={{ position:"absolute", top:"max(20px, env(safe-area-inset-top, 20px))", right:20, width:40, height:40, borderRadius:"50%", backgroundColor:"rgba(255,255,255,0.1)", border:"1px solid rgba(255,255,255,0.2)", display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", color:"white", zIndex:210 }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
 
       {/* Ticket Modal */}
-      <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center", paddingBottom:40, animation:"fadeSlideUp 0.4s cubic-bezier(0.2,0.8,0.2,1) both" }}>
+      <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center", animation:"fadeSlideUp 0.4s cubic-bezier(0.2,0.8,0.2,1) both", overflowY:"auto", maxHeight:"85vh", paddingBottom:20 }}>
         
-        {/* Close Button */}
-        <button onClick={onClose} style={{ width:40, height:40, borderRadius:"50%", backgroundColor:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.15)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:20, cursor:"pointer", color:"white" }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-
         {/* The Ticket Card */}
-        <div style={{ width:320, backgroundColor:"#F5F2ED", borderRadius:24, overflow:"hidden", boxShadow:"0 20px 50px rgba(0,0,0,0.5)", position:"relative" }}>
+        <div style={{ width:320, backgroundColor:"#F5F2ED", borderRadius:24, overflow:"hidden", boxShadow:"0 20px 50px rgba(0,0,0,0.5)", position:"relative", flexShrink:0 }}>
           
           {/* Top Section */}
           <div style={{ padding:"32px 24px 24px", display:"flex", flexDirection:"column", alignItems:"center", borderBottom:"2px dashed rgba(0,0,0,0.15)", position:"relative" }}>
@@ -3066,9 +3112,229 @@ function GlobalScanOverlay({ onClose, onSuccess }) {
 }
 
 /* ═══════════════════════════════════════════════════════
+   AR NAVIGATION FLOW
+═══════════════════════════════════════════════════════ */
+function ARNavigationFlow({ targetObra, onClose, onFichaObra }) {
+  // Omitimos "selection" porque el usuario ya presionó "Iniciar ruta" en la ficha de obra.
+  const [phase, setPhase] = useState("confirmation"); 
+  const [distance, setDistance] = useState(15);
+  const [isSimulatingCamera, setIsSimulatingCamera] = useState(false);
+  
+  useEffect(() => {
+    let t;
+    if (phase === "activation") {
+      // No auto-advance, waits for user to click "Activar cámara"
+    } else if (phase === "calibration") {
+      setIsSimulatingCamera(true);
+      t = setTimeout(() => setPhase("active"), 3500); // 3.5s of scanning
+    } else if (phase === "active") {
+      t = setInterval(() => {
+        setDistance(d => {
+          if (d <= 2) {
+            setPhase("arrival");
+            clearInterval(t);
+            return 0;
+          }
+          // Simulate off-route at distance 8
+          if (d === 8 && Math.random() > 0.5) {
+            setPhase("off_route");
+            clearInterval(t);
+          }
+          return d - 1;
+        });
+      }, 1200);
+    }
+    return () => { clearTimeout(t); clearInterval(t); };
+  }, [phase]);
+
+  return (
+    <div style={{ position:"absolute", inset:0, zIndex:100, overflow:"hidden", backgroundColor:T.bgBase, animation:"fadeSlideUp 0.4s cubic-bezier(.22,.68,0,1.1) both" }}>
+      
+      {/* ── BACKGROUNDS ── */}
+      {phase === "confirmation" && (
+         <div style={{ position:"absolute", inset:0, opacity:0.8 }}>
+           <div style={{ width:"100%", height:"100%", backgroundColor:T.bgBase }} />
+           <div style={{ position:"absolute", inset:0, backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}/>
+         </div>
+      )}
+      
+      {(phase !== "confirmation") && (
+         <div style={{ position:"absolute", inset:0, backgroundColor:"#0C0A09", overflow:"hidden", perspective:"800px" }}>
+            {/* Cámara simulada */}
+            <div style={{ 
+              position:"absolute", inset:-20, 
+              backgroundImage:`url(${targetObra.img || "/monalisa.jpg"})`, 
+              backgroundSize:"cover", backgroundPosition:"center", 
+              opacity: phase === "activation" ? 0.15 : 0.35, 
+              filter: phase==="off_route" ? "blur(12px) brightness(0.4) grayscale(0.5)" : "blur(4px) brightness(0.7)",
+              transform: isSimulatingCamera ? "scale(1.05)" : "scale(1)",
+              transition: "all 3s ease-out" 
+            }} />
+            
+            {/* Viñeta central */}
+            <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse at center, transparent 20%, rgba(12,10,9,0.8) 100%)" }} />
+
+            {/* Guía AR en el suelo (Con perspectiva 3D real) */}
+            {phase === "active" && (
+              <div style={{ position:"absolute", bottom:"-10%", left:"-20%", right:"-20%", height:"80vh", transformStyle:"preserve-3d", transform:"rotateX(60deg) translateZ(-50px)", zIndex:1, opacity:0.85 }}>
+                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ filter:"drop-shadow(0 0 12px rgba(192,57,43,0.9))" }}>
+                  <defs>
+                    <linearGradient id="arGradient" x1="0" y1="100%" x2="0" y2="0%">
+                      <stop offset="0%" stopColor={T.brandPrimary} stopOpacity="1" />
+                      <stop offset="50%" stopColor={T.brandPrimary} stopOpacity="0.8" />
+                      <stop offset="100%" stopColor={T.brandPrimary} stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  {/* Sombra base */}
+                  <path d="M50 100 Q 55 50 40 0" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="6" transform="translate(0, 2)" />
+                  {/* Línea principal */}
+                  <path d="M50 100 Q 55 50 40 0" fill="none" stroke="url(#arGradient)" strokeWidth="4" strokeDasharray="8 6" style={{ animation: "route-flow 0.8s linear infinite" }} />
+                  {/* Brillo interno */}
+                  <path d="M50 100 Q 55 50 40 0" fill="none" stroke="white" strokeWidth="1.5" strokeDasharray="8 6" style={{ animation: "route-flow 0.8s linear infinite", opacity:0.6 }} />
+                </svg>
+              </div>
+            )}
+
+            {/* Marcador Halo de Llegada */}
+            {phase === "arrival" && (
+              <div style={{ position:"absolute", top:"35%", left:"50%", transform:"translate(-50%,-50%)", width:140, height:140, borderRadius:"50%", background:`radial-gradient(circle, ${T.brandPrimary}50 0%, transparent 70%)`, animation:"pulse 2s infinite ease-in-out", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                <div style={{ width:20, height:20, backgroundColor:"white", borderRadius:"50%", boxShadow:`0 0 20px ${T.brandPrimary}` }} />
+              </div>
+            )}
+         </div>
+      )}
+
+      {/* Screen 2: Confirmación */}
+      {phase === "confirmation" && (
+        <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }} className="fade-up">
+          <div style={{ backgroundColor:T.bgCardRaised, border:`1px solid ${T.borderMedium}`, borderRadius:24, padding:32, width:"100%", maxWidth:340, textAlign:"center", boxShadow:"0 20px 40px rgba(0,0,0,0.6)" }}>
+            <h2 style={{ fontFamily:T.fontDisplay, fontSize:26, color:T.textPrimary, marginBottom:8, lineHeight:1.1 }}>Ruta hacia {targetObra.titulo}</h2>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:6, marginBottom:32, opacity:0.8 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={T.textSecondary} strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <p style={{ fontFamily:T.fontUI, fontSize:14, color:T.textSecondary, margin:0 }}>{targetObra.sala} · Piso {targetObra.piso} · ~2 min</p>
+            </div>
+            <button onClick={() => setPhase("activation")} className="btn-tap" style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:12, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>Guiarme con AR</button>
+            <button onClick={onClose} className="btn-tap" style={{ width:"100%", backgroundColor:"transparent", color:T.textPrimary, border:`1px solid ${T.borderSubtle}`, borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>Ver en el mapa</button>
+          </div>
+        </div>
+      )}
+
+      {/* Screen 3: Activación AR */}
+      {phase === "activation" && (
+        <div style={{ position:"absolute", inset:0, backgroundColor:T.bgBase, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32 }} className="fade-up">
+           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={T.textSecondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom:24 }}>
+             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+             <circle cx="12" cy="13" r="4"/>
+           </svg>
+           <h2 style={{ fontFamily:T.fontDisplay, fontSize:24, color:T.textPrimary, marginBottom:16, textAlign:"center" }}>Guía en el espacio real</h2>
+           <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, textAlign:"center", lineHeight:1.5, marginBottom:40 }}>Usaremos la cámara para orientarte dentro del museo y mostrarte indicaciones sobre el recorrido.</p>
+           <div style={{ width:"100%", maxWidth:300 }}>
+             <button onClick={() => setPhase("calibration")} style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:12 }}>Activar cámara</button>
+             <button onClick={onClose} style={{ width:"100%", backgroundColor:"transparent", color:T.textSecondary, border:"none", padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>Seguir con mapa</button>
+           </div>
+        </div>
+      )}
+
+      {/* Screen 4: Calibración */}
+      {phase === "calibration" && (
+        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }} className="fade-up">
+           <div style={{ width:120, height:120, border:`1px solid rgba(255,255,255,0.15)`, borderRadius:"50%", position:"relative", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:40 }}>
+             <div style={{ position:"absolute", inset:20, border:`1.5px solid rgba(255,255,255,0.4)`, borderRadius:"50%", animation:"breathe 2s cubic-bezier(0.4, 0, 0.2, 1) infinite" }} />
+             <div style={{ width:6, height:6, backgroundColor:"white", borderRadius:"50%", boxShadow:"0 0 10px white" }} />
+           </div>
+           <div style={{ backgroundColor:"rgba(12,10,9,0.8)", backdropFilter:"blur(12px)", padding:"14px 28px", borderRadius:T.rFull, marginBottom:24, border:`1px solid ${T.borderMedium}` }}>
+             <p style={{ fontFamily:T.fontUI, fontSize:15, color:"white", margin:0, fontWeight:500, letterSpacing:"0.02em" }}>Ubicando tu posición...</p>
+           </div>
+           <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, textAlign:"center", maxWidth:260, lineHeight:1.5 }}>Mueve el teléfono lentamente apuntando hacia el suelo.</p>
+           <div style={{ position:"absolute", bottom:40, display:"flex", gap:16 }}>
+             <button onClick={onClose} className="btn-tap" style={{ backgroundColor:"rgba(12,10,9,0.7)", backdropFilter:"blur(12px)", border:`1px solid ${T.borderMedium}`, color:"white", padding:"14px 28px", borderRadius:T.rFull, fontFamily:T.fontUI, fontSize:14, fontWeight:500 }}>Cancelar</button>
+           </div>
+        </div>
+      )}
+
+      {/* Screen 5: Navegación Activa */}
+      {phase === "active" && (
+        <div className="fade-up">
+          {/* HUD Unificado Superior */}
+          <div style={{ position:"absolute", top:"max(16px, env(safe-area-inset-top, 16px))", left:16, right:16, display:"flex", justifyContent:"center", zIndex:20 }}>
+            <div style={{ backgroundColor:"rgba(16,14,12,0.85)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:`1px solid rgba(255,255,255,0.15)`, padding:"16px 24px", borderRadius:32, display:"flex", flexDirection:"column", alignItems:"center", gap:6, boxShadow:"0 16px 40px rgba(0,0,0,0.6)", width:"100%", maxWidth:320 }}>
+               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                 <p style={{ fontFamily:T.fontUI, fontSize:20, color:"white", margin:0, letterSpacing:"0.01em", fontWeight:600 }}>Continúa recto</p>
+               </div>
+               <div style={{ display:"flex", alignItems:"center", gap:6, opacity:0.8 }}>
+                 <span style={{ width:6, height:6, backgroundColor:T.brandPrimary, borderRadius:"50%", boxShadow:`0 0 8px ${T.brandPrimary}` }} />
+                 <p style={{ fontFamily:T.fontUI, fontSize:13, color:"white", margin:0, fontWeight:500, letterSpacing:"0.02em", textTransform:"uppercase" }}>{targetObra.titulo} <span style={{ opacity:0.5, margin:"0 4px" }}>•</span> {distance} m</p>
+               </div>
+            </div>
+          </div>
+
+          {/* Bottom Actions */}
+          <div style={{ position:"absolute", bottom:"max(32px, env(safe-area-inset-bottom, 32px))", left:24, right:24, display:"flex", justifyContent:"space-between", zIndex:20 }}>
+            <button onClick={onClose} className="btn-tap" style={{ backgroundColor:"rgba(16,14,12,0.85)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:`1px solid rgba(255,255,255,0.15)`, color:"white", width:56, height:56, borderRadius:28, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", boxShadow:"0 8px 24px rgba(0,0,0,0.5)" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <button onClick={onClose} className="btn-tap" style={{ backgroundColor:"rgba(16,14,12,0.85)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:`1px solid rgba(255,255,255,0.15)`, color:"white", padding:"0 24px", height:56, borderRadius:28, fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", boxShadow:"0 8px 24px rgba(0,0,0,0.5)", display:"flex", alignItems:"center", gap:8 }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Ver mapa 2D
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Screen 6: Fuera de Ruta */}
+      {phase === "off_route" && (
+        <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"flex-end", justifyContent:"center", padding:24, paddingBottom:80, zIndex:20 }} className="fade-up">
+           <div style={{ backgroundColor:"rgba(12,10,9,0.95)", backdropFilter:"blur(24px)", border:`1px solid ${T.borderMedium}`, borderRadius:32, padding:32, width:"100%", maxWidth:360, boxShadow:"0 24px 48px rgba(0,0,0,0.8)" }}>
+             <h3 style={{ fontFamily:T.fontDisplay, fontSize:24, color:"white", margin:0, marginBottom:10 }}>Te alejaste de la ruta</h3>
+             <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, margin:0, marginBottom:32, lineHeight:1.5 }}>Podemos recalcular el recorrido desde tu ubicación actual.</p>
+             <button onClick={() => setPhase("calibration")} className="btn-tap" style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:16, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>Recalcular ruta</button>
+             <div style={{ display:"flex", gap:16 }}>
+               <button onClick={onClose} className="btn-tap" style={{ flex:1, backgroundColor:"transparent", color:"white", border:`1px solid ${T.borderSubtle}`, borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:14, fontWeight:600, cursor:"pointer" }}>Abrir mapa</button>
+               <button onClick={onClose} className="btn-tap" style={{ flex:1, backgroundColor:"transparent", color:T.textSecondary, border:"none", borderRadius:T.rFull, padding:"16px", fontFamily:T.fontUI, fontSize:14, fontWeight:500, cursor:"pointer" }}>Sin guía</button>
+             </div>
+           </div>
+        </div>
+      )}
+
+      {/* Screen 7: Llegada */}
+      {phase === "arrival" && (
+        <div style={{ position:"absolute", inset:0, display:"flex", flexDirection:"column", justifyContent:"flex-end", zIndex:20 }} className="fade-up">
+          <div style={{ display:"flex", justifyContent:"center", marginBottom:40 }}>
+            <div style={{ backgroundColor:"rgba(255,255,255,0.95)", color:"#0C0A09", padding:"12px 24px", borderRadius:T.rFull, fontWeight:700, fontFamily:T.fontUI, fontSize:15, boxShadow:"0 8px 24px rgba(0,0,0,0.4)", letterSpacing:"0.02em" }}>¡Has llegado!</div>
+          </div>
+          <div style={{ backgroundColor:T.bgCardRaised, borderTopLeftRadius:32, borderTopRightRadius:32, padding:32, borderTop:`1px solid ${T.borderMedium}`, boxShadow:"0 -10px 40px rgba(0,0,0,0.6)" }}>
+             <div style={{ display:"flex", gap:20, marginBottom:32 }}>
+                <div style={{ width:80, height:100, borderRadius:12, overflow:"hidden", flexShrink:0, border:`1px solid ${T.borderSubtle}`, boxShadow:"0 4px 12px rgba(0,0,0,0.3)" }}>
+                  <img src={targetObra.img || "/monalisa.jpg"} alt="" style={{ width:"100%", height:"100%", objectFit:"cover" }}/>
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", justifyContent:"center" }}>
+                  <h3 style={{ fontFamily:T.fontDisplay, fontSize:26, color:T.textPrimary, margin:0, marginBottom:6, lineHeight:1.1 }}>{targetObra.titulo}</h3>
+                  <p style={{ fontFamily:T.fontUI, fontSize:15, color:T.textSecondary, margin:0 }}>Fernando Botero</p>
+                </div>
+             </div>
+             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ width:"100%", backgroundColor:T.brandPrimary, color:"white", border:"none", borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:16, display:"flex", alignItems:"center", justifyContent:"center", gap:10, boxShadow:`0 8px 20px rgba(192,57,43,0.3)` }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Escuchar guía
+             </button>
+             <button onClick={() => { onClose(); onFichaObra(targetObra.id); }} className="btn-tap" style={{ width:"100%", backgroundColor:"transparent", color:"white", border:`1px solid ${T.borderSubtle}`, borderRadius:T.rFull, padding:"18px", fontFamily:T.fontUI, fontSize:15, fontWeight:600, cursor:"pointer", marginBottom:16 }}>
+                Ver ficha completa
+             </button>
+             <button onClick={onClose} className="btn-tap" style={{ width:"100%", backgroundColor:"transparent", color:T.textSecondary, border:"none", padding:"16px", fontFamily:T.fontUI, fontSize:15, fontWeight:500, cursor:"pointer" }}>
+                Continuar recorrido
+             </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════
    APP ROOT
 ═══════════════════════════════════════════════════════ */
 export default function App() {
+  const [arTarget, setArTarget] = useState(null);
   const [showVoiceSearch, setShowVoiceSearch] = useState(false);
   const [activeTab, setActiveTab]       = useState("home");
   const [showNumpad, setShowNumpad]     = useState(false);
@@ -3155,6 +3421,7 @@ export default function App() {
           onColeccion={() => { closeDetalle(); setActiveTab("coleccion"); }}
           isSaved={isSaved(detalleId)}
           onToggleColeccion={() => toggleColeccion(detalleId)}
+          onARNavigation={(obra) => setArTarget(obra)}
         />
       )}
       {detalleId && showIA && !showNLP && !showGuia && (
@@ -3184,6 +3451,7 @@ export default function App() {
       {showVoiceSearch && <VoiceSearchOverlay onClose={() => setShowVoiceSearch(false)} onSearch={(obra) => { setShowVoiceSearch(false); handleFind(obra); }}/>}
       {showPase && <PaseModal onClose={() => setShowPase(false)}/>}
       <Toast message={toast.message} type={toast.type} visible={toast.visible}/>
+      {arTarget && <ARNavigationFlow targetObra={arTarget} onClose={() => setArTarget(null)} onFichaObra={openDetalle} />}
     </div>
   );
 }
